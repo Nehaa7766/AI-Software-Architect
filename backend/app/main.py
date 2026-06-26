@@ -1,1 +1,64 @@
-# FastAPI app: middleware (CORS, security), router include, Swagger
+"""FastAPI application entrypoint for the AI Software Architect auth module."""
+import logging
+from pathlib import Path
+
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from slowapi import _rate_limit_exceeded_handler
+from slowapi.errors import RateLimitExceeded
+
+from app.core.config import settings
+from app.core.middleware import SecurityHeadersMiddleware
+from app.core.rate_limit import limiter
+from app.modules.auth.middlewares.error_handlers import register_exception_handlers
+from app.modules.auth.routes.auth_routes import router as auth_router
+
+logging.basicConfig(level=logging.INFO)
+
+
+def create_app() -> FastAPI:
+    app = FastAPI(
+        title="AI Software Architect API",
+        version="0.1.0",
+        description="Authentication module — register, login, Google OAuth, profiles.",
+        docs_url="/docs",
+        redoc_url="/redoc",
+    )
+
+    # Rate limiting
+    app.state.limiter = limiter
+    app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+
+    # Security headers
+    app.add_middleware(SecurityHeadersMiddleware)
+
+    # CORS — explicit whitelist, credentials enabled for cookie auth
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=[settings.CLIENT_ORIGIN],
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+        expose_headers=["X-CSRF-Token"],
+    )
+
+    # Domain exception -> HTTP mapping
+    register_exception_handlers(app)
+
+    # Routers
+    app.include_router(auth_router, prefix=settings.API_PREFIX)
+
+    # Serve uploaded files (e.g. avatars)
+    upload_dir = Path(settings.UPLOAD_DIR)
+    upload_dir.mkdir(parents=True, exist_ok=True)
+    app.mount("/uploads", StaticFiles(directory=str(upload_dir)), name="uploads")
+
+    @app.get("/health", tags=["health"])
+    async def health() -> dict[str, str]:
+        return {"status": "ok", "environment": settings.ENVIRONMENT}
+
+    return app
+
+
+app = create_app()

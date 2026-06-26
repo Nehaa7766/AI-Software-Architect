@@ -1,9 +1,5 @@
-# Planning / scratch docs — not part of the codebase
-plan.md
-plan2.md
-plan*.md
-
-# Readme files
-README.md
-README*.md
-readme.md
+# Root planning / scratch docs — not part of the codebase
+/plan.md
+/plan2.md
+/plan*.md
+/README.md
