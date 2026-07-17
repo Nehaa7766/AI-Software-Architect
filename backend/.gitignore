@@ -18,5 +18,8 @@ env/
 # Uploads (user content)
 uploads/
 
+# Imported project workspaces (Phase 1)
+workspace/
+
 # OS
 .DS_Store

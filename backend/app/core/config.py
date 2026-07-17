@@ -57,6 +57,18 @@ class Settings(BaseSettings):
     UPLOAD_DIR: str = "./uploads"
     MAX_AVATAR_BYTES: int = 2 * 1024 * 1024
 
+    # Project import (Phase 1)
+    WORKSPACE_DIR: str = "./workspace"
+    # Temp dir for incoming archives before they are validated + extracted.
+    PROJECT_TMP_DIR: str = "./workspace/.tmp"
+    MAX_PROJECT_BYTES: int = 100 * 1024 * 1024  # max uploaded zip size
+    MAX_PROJECT_UNCOMPRESSED_BYTES: int = 500 * 1024 * 1024  # zip-bomb guard
+    MAX_PROJECT_FILES: int = 20_000  # max entries in an archive
+    GITHUB_API_BASE: str = "https://api.github.com"
+    GITHUB_CODELOAD_BASE: str = "https://codeload.github.com"
+    GITHUB_DOWNLOAD_TIMEOUT_SECONDS: int = 60
+    RATE_LIMIT_IMPORT: str = "10/minute"
+
     # Rate limiting
     RATE_LIMIT_LOGIN: str = "5/minute"
     RATE_LIMIT_REGISTER: str = "5/minute"

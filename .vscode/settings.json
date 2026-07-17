@@ -1,0 +1,28 @@
+{
+  "//": "Imported projects are extracted into backend/workspace and avatars into backend/uploads. These are runtime data, not source — keep the editor's TS server, watchers, and search out of them so compilation/indexing stays fast.",
+  "files.watcherExclude": {
+    "**/backend/workspace/**": true,
+    "**/backend/uploads/**": true,
+    "**/.next/**": true,
+    "**/node_modules/**": true,
+    "**/__pycache__/**": true,
+    "**/.pytest_cache/**": true,
+    "**/.venv/**": true
+  },
+  "search.exclude": {
+    "**/backend/workspace": true,
+    "**/backend/uploads": true,
+    "**/.next": true,
+    "**/node_modules": true,
+    "**/__pycache__": true,
+    "**/*.tsbuildinfo": true
+  },
+  "files.exclude": {
+    "**/backend/workspace": true,
+    "**/backend/uploads": true
+  },
+  "typescript.tsserver.watchOptions": {
+    "watchDirectory": "useFsEvents",
+    "excludeDirectories": ["**/backend/workspace", "**/backend/uploads", "**/node_modules"]
+  }
+}

@@ -52,6 +52,9 @@ class User(Base, TimestampMixin):
     audit_logs: Mapped[list["AuthAuditLog"]] = relationship(
         back_populates="user", cascade="all, delete-orphan"
     )
+    projects: Mapped[list["Project"]] = relationship(  # noqa: F821
+        back_populates="owner", cascade="all, delete-orphan"
+    )
 
     @property
     def full_name(self) -> str:

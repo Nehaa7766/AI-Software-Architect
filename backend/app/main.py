@@ -13,6 +13,10 @@ from app.core.middleware import SecurityHeadersMiddleware
 from app.core.rate_limit import limiter
 from app.modules.auth.middlewares.error_handlers import register_exception_handlers
 from app.modules.auth.routes.auth_routes import router as auth_router
+from app.modules.projects.middlewares.error_handlers import (
+    register_exception_handlers as register_project_exception_handlers,
+)
+from app.modules.projects.routes.project_routes import router as projects_router
 
 logging.basicConfig(level=logging.INFO)
 
@@ -45,14 +49,19 @@ def create_app() -> FastAPI:
 
     # Domain exception -> HTTP mapping
     register_exception_handlers(app)
+    register_project_exception_handlers(app)
 
     # Routers
     app.include_router(auth_router, prefix=settings.API_PREFIX)
+    app.include_router(projects_router, prefix=settings.API_PREFIX)
 
     # Serve uploaded files (e.g. avatars)
     upload_dir = Path(settings.UPLOAD_DIR)
     upload_dir.mkdir(parents=True, exist_ok=True)
     app.mount("/uploads", StaticFiles(directory=str(upload_dir)), name="uploads")
+
+    # Workspace for imported projects (never served statically — code is not executed).
+    Path(settings.WORKSPACE_DIR).mkdir(parents=True, exist_ok=True)
 
     @app.get("/health", tags=["health"])
     async def health() -> dict[str, str]:
