@@ -1,17 +1,18 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { Github, Loader2, Trash2, Upload } from "lucide-react";
+import { Layers, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getErrorMessage } from "@/lib/axios";
 import { projectsApi, type Project } from "@/features/projects/api/projects.api";
 import { ImportProjectCard } from "@/features/projects/components/ImportProjectCard";
-import { StatusBadge } from "@/features/projects/components/StatusBadge";
-import { StackBadges } from "@/features/projects/components/StackBadges";
 import { ProjectDetailPanel } from "@/features/projects/components/ProjectDetailPanel";
+import { AgentSwarm } from "@/features/projects/components/workspace/AgentSwarm";
+import { ArchitectureHealth } from "@/features/projects/components/workspace/ArchitectureHealth";
+import { ImportedProjectCard } from "@/features/projects/components/workspace/ImportedProjectCard";
+import { RecentActivity } from "@/features/projects/components/workspace/RecentActivity";
+import { WorkspaceHero } from "@/features/projects/components/workspace/WorkspaceHero";
 
 export default function ProjectsPage() {
   const [projects, setProjects] = useState<Project[]>([]);
@@ -34,9 +35,8 @@ export default function ProjectsPage() {
     load();
   }, [load]);
 
-  const handleImported = (project: Project) => {
+  const handleImported = (project: Project) =>
     setProjects((prev) => [project, ...prev]);
-  };
 
   const handleDelete = async (id: string) => {
     setDeleting(id);
@@ -51,11 +51,8 @@ export default function ProjectsPage() {
     }
   };
 
-  const handleUpdated = (updated: Project) => {
-    setProjects((prev) =>
-      prev.map((p) => (p.id === updated.id ? updated : p)),
-    );
-  };
+  const handleUpdated = (updated: Project) =>
+    setProjects((prev) => prev.map((p) => (p.id === updated.id ? updated : p)));
 
   const handleDeletedFromPanel = (id: string) => {
     setProjects((prev) => prev.filter((p) => p.id !== id));
@@ -65,89 +62,57 @@ export default function ProjectsPage() {
   const selected = projects.find((p) => p.id === selectedId) ?? null;
 
   return (
-    <div className="grid gap-6 lg:grid-cols-[380px_1fr]">
-      <div>
-        <h1 className="mb-4 text-2xl font-bold">Projects</h1>
-        <ImportProjectCard onImported={handleImported} />
-      </div>
+    <div className="mx-auto max-w-[1400px]">
+      <WorkspaceHero />
 
-      <div className="space-y-4">
-        <h2 className="text-lg font-semibold lg:mt-12">Imported projects</h2>
+      <div className="grid gap-6 xl:grid-cols-[minmax(0,0.95fr)_minmax(0,1.1fr)_340px]">
+        {/* Import column */}
+        <div className="xl:sticky xl:top-24 xl:self-start">
+          <ImportProjectCard onImported={handleImported} />
+        </div>
 
-        {loading ? (
-          <div className="flex items-center justify-center py-12">
-            <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+        {/* Imported projects column */}
+        <div>
+          <div className="mb-3 flex items-center justify-between">
+            <h2 className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+              Imported Projects
+            </h2>
+            {!loading && (
+              <span className="rounded-full bg-secondary px-2 py-0.5 text-xs font-medium tabular-nums text-muted-foreground">
+                {projects.length} {projects.length === 1 ? "Project" : "Projects"}
+              </span>
+            )}
           </div>
-        ) : projects.length === 0 ? (
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base">No projects yet</CardTitle>
-            </CardHeader>
-            <CardContent className="text-sm text-muted-foreground">
-              Import a ZIP or a GitHub repository to get started.
-            </CardContent>
-          </Card>
-        ) : (
-          <ul className="space-y-3">
-            {projects.map((p) => (
-              <li key={p.id}>
-                <Card
-                  role="button"
-                  tabIndex={0}
-                  onClick={() => setSelectedId(p.id)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" || e.key === " ") {
-                      e.preventDefault();
-                      setSelectedId(p.id);
-                    }
-                  }}
-                  className="cursor-pointer transition-colors hover:border-primary/50 hover:bg-secondary/30 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                >
-                  <CardContent className="flex items-center justify-between gap-4 py-4">
-                    <div className="min-w-0">
-                      <div className="flex items-center gap-2">
-                        {p.source_type === "GITHUB" ? (
-                          <Github className="h-4 w-4 shrink-0 text-muted-foreground" />
-                        ) : (
-                          <Upload className="h-4 w-4 shrink-0 text-muted-foreground" />
-                        )}
-                        <span className="truncate font-medium">
-                          {p.project_name}
-                        </span>
-                        <StatusBadge status={p.status} />
-                      </div>
-                      <p className="mt-1 truncate text-xs text-muted-foreground">
-                        {p.source_location}
-                      </p>
-                      {p.status === "EXTRACTED" && <StackBadges stack={p.stack} />}
-                      {p.status === "FAILED" && p.error_message && (
-                        <p className="mt-1 text-xs text-red-600">
-                          {p.error_message}
-                        </p>
-                      )}
-                    </div>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      disabled={deleting === p.id}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleDelete(p.id);
-                      }}
-                    >
-                      {deleting === p.id ? (
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                      ) : (
-                        <Trash2 className="h-4 w-4" />
-                      )}
-                    </Button>
-                  </CardContent>
-                </Card>
-              </li>
-            ))}
-          </ul>
-        )}
+
+          {loading ? (
+            <div className="flex items-center justify-center rounded-2xl border border-dashed py-20">
+              <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+            </div>
+          ) : projects.length === 0 ? (
+            <EmptyState />
+          ) : (
+            <div className="space-y-4">
+              {projects.map((p) => (
+                <ImportedProjectCard
+                  key={p.id}
+                  project={p}
+                  deleting={deleting === p.id}
+                  onOpen={() => setSelectedId(p.id)}
+                  onDelete={() => handleDelete(p.id)}
+                />
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Right rail */}
+        <div className="space-y-6">
+          <ArchitectureHealth />
+          <RecentActivity projects={projects} />
+        </div>
       </div>
+
+      <AgentSwarm />
 
       {selected && (
         <ProjectDetailPanel
@@ -157,6 +122,21 @@ export default function ProjectsPage() {
           onDeleted={handleDeletedFromPanel}
         />
       )}
+    </div>
+  );
+}
+
+function EmptyState() {
+  return (
+    <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed bg-card/50 px-6 py-16 text-center">
+      <span className="mb-4 grid h-12 w-12 place-items-center rounded-xl bg-accent/10 text-accent">
+        <Layers className="h-6 w-6" />
+      </span>
+      <h3 className="text-sm font-semibold text-foreground">No projects yet</h3>
+      <p className="mt-1 max-w-xs text-sm text-muted-foreground">
+        Import a ZIP archive or a public GitHub repository to start exploring a
+        codebase.
+      </p>
     </div>
   );
 }

@@ -41,6 +41,62 @@ export interface MessageResponse {
   message: string;
 }
 
+export interface TreeNode {
+  name: string;
+  path: string;
+  type: "dir" | "file";
+  size_bytes: number | null;
+  language: string | null;
+  children: TreeNode[] | null;
+}
+
+export interface ProjectTree {
+  root: TreeNode;
+  total_files: number;
+  total_dirs: number;
+  truncated: boolean;
+}
+
+export interface FileSymbolCounts {
+  functions: number;
+  methods: number;
+  classes: number;
+  total: number;
+}
+
+export interface SymbolsByFile {
+  project_id: string;
+  files: Record<string, FileSymbolCounts>;
+  total_symbols: number;
+}
+
+export interface SymbolCounts {
+  classes: number;
+  interfaces: number;
+  enums: number;
+  functions: number;
+  methods: number;
+  variables: number;
+  constants: number;
+  imports: number;
+  exports: number;
+  decorators: number;
+  comments: number;
+  docstrings: number;
+}
+
+export interface ParseSummary {
+  project_id: string;
+  status: string;
+  files_total: number;
+  files_parsed: number;
+  files_skipped: number;
+  files_failed: number;
+  total_symbols: number;
+  symbols: SymbolCounts;
+  by_type: Record<string, number>;
+}
+
 export const projectsApi = {
   list: () =>
     api.get<ProjectListResponse>("/projects").then((r) => r.data),
@@ -76,6 +132,17 @@ export const projectsApi = {
 
   detect: (id: string) =>
     api.post<Project>(`/projects/${id}/detect`).then((r) => r.data),
+
+  tree: (id: string) =>
+    api.get<ProjectTree>(`/projects/${id}/tree`).then((r) => r.data),
+
+  parse: (id: string) =>
+    api.post<ParseSummary>(`/projects/${id}/parse`).then((r) => r.data),
+
+  symbolsByFile: (id: string) =>
+    api
+      .get<SymbolsByFile>(`/projects/${id}/symbols/by-file`)
+      .then((r) => r.data),
 
   remove: (id: string) =>
     api.delete<MessageResponse>(`/projects/${id}`).then((r) => r.data),

@@ -5,6 +5,11 @@ from app.models.project import (  # noqa: F401
     ProjectFile,
     ProjectStatus,
 )
+from app.models.symbol import (  # noqa: F401
+    Symbol,
+    SymbolType,
+    Visibility,
+)
 from app.models.user import (  # noqa: F401
     AuthAuditLog,
     AuthProvider,

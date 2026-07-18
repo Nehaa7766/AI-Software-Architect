@@ -17,6 +17,7 @@ from app.modules.projects.services.extractor import Extractor
 from app.modules.projects.services.github_importer import GitHubImporter
 from app.modules.projects.services.scanner_service import ScannerService, ScanResult
 from app.modules.projects.services.staging import StagedArchive
+from app.modules.projects.services.tree_service import ProjectTree, TreeService
 from app.modules.projects.services.workspace_manager import WorkspaceManager
 from app.modules.projects.services.zip_importer import ZipImporter
 from app.modules.projects.utils.exceptions import (
@@ -40,6 +41,7 @@ class ProjectService:
         detection: DetectionService,
         files: FileRepository,
         scanner: ScannerService,
+        tree: TreeService,
     ) -> None:
         self.projects = projects
         self.zip_importer = zip_importer
@@ -49,6 +51,7 @@ class ProjectService:
         self.detection = detection
         self.files = files
         self.scanner = scanner
+        self.tree = tree
 
     # ---- Imports ----
     async def import_zip(self, *, owner_id: str, upload: UploadFile) -> Project:
@@ -184,6 +187,15 @@ class ProjectService:
         total = await self.files.count_for_project(project_id, language=language)
         breakdown = await self.files.language_breakdown(project_id)
         return items, total, breakdown
+
+    async def get_file_tree(
+        self, *, project_id: str, owner_id: str
+    ) -> ProjectTree:
+        """Build the extracted project's folder/file tree (owner-scoped)."""
+        project = await self.get_project(project_id=project_id, owner_id=owner_id)
+        if project.status != ProjectStatus.EXTRACTED or not project.workspace_path:
+            raise ProjectNotExtracted()
+        return await asyncio.to_thread(self.tree.build, project.workspace_path)
 
     # ---- Reads ----
     async def list_projects(self, owner_id: str) -> tuple[list[Project], int]:

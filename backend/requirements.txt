@@ -14,3 +14,6 @@ fastapi-mail>=1.4
 python-multipart>=0.0.9
 aiofiles>=23.2
 anthropic>=0.40
+# Phase 4 — AST parsing (JavaScript/TypeScript via Tree-sitter, prebuilt wheels)
+tree-sitter>=0.21
+tree-sitter-language-pack>=0.2

@@ -74,3 +74,20 @@ class FileListResponse(BaseModel):
     files: list[ScannedFileResponse]
     total: int
     by_language: dict[str, int]
+
+
+# ---- Folder tree (file explorer) ----
+class TreeNodeResponse(BaseModel):
+    name: str
+    path: str
+    type: str  # "dir" | "file"
+    size_bytes: int | None = None
+    language: str | None = None
+    children: list["TreeNodeResponse"] | None = None
+
+
+class ProjectTreeResponse(BaseModel):
+    root: TreeNodeResponse
+    total_files: int
+    total_dirs: int
+    truncated: bool = False

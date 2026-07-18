@@ -11,6 +11,10 @@ from slowapi.errors import RateLimitExceeded
 from app.core.config import settings
 from app.core.middleware import SecurityHeadersMiddleware
 from app.core.rate_limit import limiter
+from app.modules.analysis.middlewares.error_handlers import (
+    register_exception_handlers as register_analysis_exception_handlers,
+)
+from app.modules.analysis.routes.analysis_routes import router as analysis_router
 from app.modules.auth.middlewares.error_handlers import register_exception_handlers
 from app.modules.auth.routes.auth_routes import router as auth_router
 from app.modules.projects.middlewares.error_handlers import (
@@ -50,10 +54,12 @@ def create_app() -> FastAPI:
     # Domain exception -> HTTP mapping
     register_exception_handlers(app)
     register_project_exception_handlers(app)
+    register_analysis_exception_handlers(app)
 
     # Routers
     app.include_router(auth_router, prefix=settings.API_PREFIX)
     app.include_router(projects_router, prefix=settings.API_PREFIX)
+    app.include_router(analysis_router, prefix=settings.API_PREFIX)
 
     # Serve uploaded files (e.g. avatars)
     upload_dir = Path(settings.UPLOAD_DIR)

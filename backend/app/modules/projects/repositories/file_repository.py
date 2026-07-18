@@ -51,6 +51,19 @@ class FileRepository:
         result = await self.db.execute(stmt)
         return list(result.scalars().all())
 
+    async def all_for_project(self, project_id: str) -> list[ProjectFile]:
+        """Return every file row for a project (unpaged), ordered by path.
+
+        Used by Phase 4 parsing, which must iterate the whole inventory.
+        """
+        stmt = (
+            select(ProjectFile)
+            .where(ProjectFile.project_id == project_id)
+            .order_by(ProjectFile.path)
+        )
+        result = await self.db.execute(stmt)
+        return list(result.scalars().all())
+
     async def count_for_project(
         self, project_id: str, *, language: str | None = None
     ) -> int:

@@ -16,6 +16,7 @@ from app.modules.projects.services.extractor import Extractor
 from app.modules.projects.services.github_importer import GitHubImporter
 from app.modules.projects.services.project_service import ProjectService
 from app.modules.projects.services.scanner_service import ScannerService
+from app.modules.projects.services.tree_service import TreeService
 from app.modules.projects.services.validator import ProjectValidator
 from app.modules.projects.services.workspace_manager import WorkspaceManager
 from app.modules.projects.services.zip_importer import ZipImporter
@@ -30,6 +31,7 @@ _zip_importer = ZipImporter(validator=_validator, workspace=_workspace)
 _github_importer = GitHubImporter(validator=_validator, workspace=_workspace)
 _detection = DetectionService()
 _scanner = ScannerService()
+_tree = TreeService()
 
 
 def get_project_repository(db: DbSession) -> ProjectRepository:
@@ -53,4 +55,5 @@ def get_project_service(
         detection=_detection,
         files=files,
         scanner=_scanner,
+        tree=_tree,
     )
