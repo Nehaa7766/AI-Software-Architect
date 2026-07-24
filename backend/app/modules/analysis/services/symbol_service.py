@@ -104,14 +104,32 @@ class SymbolService:
         *,
         project_id: str,
         owner_id: str,
+        q: str | None = None,
         symbol_type: SymbolType | None = None,
         language: str | None = None,
         file_id: str | None = None,
         limit: int = 100,
         offset: int = 0,
     ) -> tuple[list[Symbol], int, dict[str, int]]:
-        """List a project's stored symbols (owner-scoped) with paging + breakdown."""
+        """List or search a project's symbols (owner-scoped) with paging.
+
+        When ``q`` is provided, results are ranked by relevance (Phase 5 search);
+        otherwise they are listed in file/line order.
+        """
         await self._get_owned_project(project_id, owner_id)  # ownership check
+        breakdown = await self.symbols.type_breakdown(project_id)
+
+        if q and q.strip():
+            items, total = await self.symbols.search_for_project(
+                project_id,
+                q,
+                symbol_type=symbol_type,
+                language=language,
+                limit=limit,
+                offset=offset,
+            )
+            return items, total, breakdown
+
         items = await self.symbols.list_for_project(
             project_id,
             symbol_type=symbol_type,
@@ -126,7 +144,6 @@ class SymbolService:
             language=language,
             file_id=file_id,
         )
-        breakdown = await self.symbols.type_breakdown(project_id)
         return items, total, breakdown
 
     async def counts_by_file(

@@ -70,6 +70,25 @@ export interface SymbolsByFile {
   total_symbols: number;
 }
 
+export interface SymbolItem {
+  id: string;
+  file_id: string;
+  file_path: string | null;
+  name: string;
+  symbol_type: string;
+  language: string;
+  parent_symbol: string | null;
+  visibility: string;
+  signature: string | null;
+  line_number: number;
+}
+
+export interface SymbolListResponse {
+  symbols: SymbolItem[];
+  total: number;
+  by_type: Record<string, number>;
+}
+
 export interface SymbolCounts {
   classes: number;
   interfaces: number;
@@ -142,6 +161,13 @@ export const projectsApi = {
   symbolsByFile: (id: string) =>
     api
       .get<SymbolsByFile>(`/projects/${id}/symbols/by-file`)
+      .then((r) => r.data),
+
+  searchSymbols: (id: string, q: string, limit = 30) =>
+    api
+      .get<SymbolListResponse>(`/projects/${id}/symbols`, {
+        params: { q, limit },
+      })
       .then((r) => r.data),
 
   remove: (id: string) =>

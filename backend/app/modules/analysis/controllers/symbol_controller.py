@@ -36,16 +36,21 @@ async def list_symbols(
     project_id: str,
     current_user: CurrentUser,
     service: SymbolServiceDep,
+    q: Annotated[
+        str | None,
+        Query(description="Ranked name search; omit to list in file order."),
+    ] = None,
     symbol_type: Annotated[SymbolType | None, Query()] = None,
     language: Annotated[str | None, Query()] = None,
     file_id: Annotated[str | None, Query()] = None,
     limit: Annotated[int, Query(ge=1, le=500)] = 100,
     offset: Annotated[int, Query(ge=0)] = 0,
 ) -> SymbolListResponse:
-    """List a project's extracted symbols (optionally filtered)."""
+    """Search (``q``) or list a project's extracted symbols (optionally filtered)."""
     items, total, by_type = await service.list_symbols(
         project_id=project_id,
         owner_id=current_user.id,
+        q=q,
         symbol_type=symbol_type,
         language=language,
         file_id=file_id,

@@ -41,15 +41,21 @@ def create_app() -> FastAPI:
     # Security headers
     app.add_middleware(SecurityHeadersMiddleware)
 
-    # CORS — explicit whitelist, credentials enabled for cookie auth
-    app.add_middleware(
-        CORSMiddleware,
-        allow_origins=[settings.CLIENT_ORIGIN],
-        allow_credentials=True,
-        allow_methods=["*"],
-        allow_headers=["*"],
-        expose_headers=["X-CSRF-Token"],
-    )
+    # CORS — explicit whitelist, credentials enabled for cookie auth.
+    # In development also allow any localhost/127.0.0.1 port (the Next dev server
+    # picks 3001+ when 3000 is taken), so preflight never fails locally.
+    cors_kwargs: dict = {
+        "allow_origins": settings.client_origins,
+        "allow_credentials": True,
+        "allow_methods": ["*"],
+        "allow_headers": ["*"],
+        "expose_headers": ["X-CSRF-Token"],
+    }
+    if not settings.is_production:
+        cors_kwargs["allow_origin_regex"] = (
+            r"https?://(localhost|127\.0\.0\.1)(:\d+)?"
+        )
+    app.add_middleware(CORSMiddleware, **cors_kwargs)
 
     # Domain exception -> HTTP mapping
     register_exception_handlers(app)

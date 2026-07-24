@@ -78,6 +78,11 @@ class Settings(BaseSettings):
     def is_production(self) -> bool:
         return self.ENVIRONMENT == "production"
 
+    @property
+    def client_origins(self) -> list[str]:
+        """Explicit allowed CORS origins (CLIENT_ORIGIN may be comma-separated)."""
+        return [o.strip() for o in self.CLIENT_ORIGIN.split(",") if o.strip()]
+
 
 @lru_cache
 def get_settings() -> Settings:

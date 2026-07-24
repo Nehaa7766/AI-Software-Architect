@@ -29,6 +29,7 @@ import {
 import { languageColor } from "@/features/projects/lib/language-colors";
 import { FileTree } from "@/features/projects/components/FileTree";
 import { StatusBadge } from "@/features/projects/components/StatusBadge";
+import { SymbolSearch } from "@/features/projects/components/SymbolSearch";
 
 function formatDate(iso: string): string {
   try {
@@ -367,6 +368,13 @@ export function ProjectDetailPanel({
                 </div>
               )}
             </Section>
+
+            {/* Symbol search */}
+            {project.status === "EXTRACTED" && (
+              <Section title="Search symbols">
+                <SymbolSearch projectId={project.id} analyzed={analyzed} />
+              </Section>
+            )}
 
             {/* Folder structure */}
             {project.status === "EXTRACTED" && (

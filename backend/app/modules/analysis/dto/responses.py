@@ -48,6 +48,7 @@ class SymbolResponse(BaseModel):
 
     id: str
     file_id: str
+    file_path: str | None = None
     name: str
     symbol_type: SymbolType
     language: str

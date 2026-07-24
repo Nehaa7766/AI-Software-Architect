@@ -65,6 +65,8 @@ class SymbolView:
         return SymbolResponse(
             id=symbol.id,
             file_id=symbol.file_id,
+            # Present when the query eager-loaded the file (search + listing do).
+            file_path=symbol.file.path if "file" in symbol.__dict__ else None,
             name=symbol.name,
             symbol_type=symbol.symbol_type,
             language=symbol.language,
