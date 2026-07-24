@@ -83,6 +83,15 @@
   .scrollbar-slim::-webkit-scrollbar-thumb:hover {
     background-color: hsl(var(--muted-foreground) / 0.5);
   }
+  /* Monaco read-only viewer — highlight the jumped-to line. */
+  .viewer-active-line {
+    background-color: hsl(142 60% 45% / 0.16);
+  }
+  .viewer-active-line-margin {
+    background-color: hsl(142 60% 45%);
+    width: 3px !important;
+    margin-left: 3px;
+  }
   /* Subtle dotted texture for the dark "AI mode" card. */
   .dot-grid {
     background-image: radial-gradient(

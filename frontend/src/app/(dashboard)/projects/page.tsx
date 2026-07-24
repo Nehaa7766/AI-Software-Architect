@@ -1,13 +1,13 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { Layers, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
 import { getErrorMessage } from "@/lib/axios";
 import { projectsApi, type Project } from "@/features/projects/api/projects.api";
 import { ImportProjectCard } from "@/features/projects/components/ImportProjectCard";
-import { ProjectDetailPanel } from "@/features/projects/components/ProjectDetailPanel";
 import { AgentSwarm } from "@/features/projects/components/workspace/AgentSwarm";
 import { ArchitectureHealth } from "@/features/projects/components/workspace/ArchitectureHealth";
 import { ImportedProjectCard } from "@/features/projects/components/workspace/ImportedProjectCard";
@@ -15,10 +15,10 @@ import { RecentActivity } from "@/features/projects/components/workspace/RecentA
 import { WorkspaceHero } from "@/features/projects/components/workspace/WorkspaceHero";
 
 export default function ProjectsPage() {
+  const router = useRouter();
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
   const [deleting, setDeleting] = useState<string | null>(null);
-  const [selectedId, setSelectedId] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     try {
@@ -50,16 +50,6 @@ export default function ProjectsPage() {
       setDeleting(null);
     }
   };
-
-  const handleUpdated = (updated: Project) =>
-    setProjects((prev) => prev.map((p) => (p.id === updated.id ? updated : p)));
-
-  const handleDeletedFromPanel = (id: string) => {
-    setProjects((prev) => prev.filter((p) => p.id !== id));
-    setSelectedId(null);
-  };
-
-  const selected = projects.find((p) => p.id === selectedId) ?? null;
 
   return (
     <div className="mx-auto max-w-[1400px]">
@@ -97,7 +87,7 @@ export default function ProjectsPage() {
                   key={p.id}
                   project={p}
                   deleting={deleting === p.id}
-                  onOpen={() => setSelectedId(p.id)}
+                  onOpen={() => router.push(`/projects/${p.id}`)}
                   onDelete={() => handleDelete(p.id)}
                 />
               ))}
@@ -113,15 +103,6 @@ export default function ProjectsPage() {
       </div>
 
       <AgentSwarm />
-
-      {selected && (
-        <ProjectDetailPanel
-          project={selected}
-          onClose={() => setSelectedId(null)}
-          onUpdated={handleUpdated}
-          onDeleted={handleDeletedFromPanel}
-        />
-      )}
     </div>
   );
 }

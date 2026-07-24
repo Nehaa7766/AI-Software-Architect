@@ -90,3 +90,11 @@ class SymbolsByFileResponse(BaseModel):
     project_id: str
     files: dict[str, FileSymbolCounts]
     total_symbols: int
+
+
+class FileContentResponse(BaseModel):
+    """Read-only source of a single workspace file (Phase 5.1 viewer)."""
+
+    path: str
+    language: str
+    content: str

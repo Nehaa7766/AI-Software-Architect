@@ -15,6 +15,7 @@ import {
   Loader2,
   LogOut,
   Search,
+  SearchCheck,
   Settings,
   Sparkles,
   Waypoints,
@@ -34,6 +35,7 @@ type NavItem = {
 const NAV: NavItem[] = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/projects", label: "Projects", icon: FolderGit2 },
+  { href: "/code-review", label: "Code Review", icon: SearchCheck },
   { label: "AI Architecture Map", icon: Waypoints, soon: true },
   { label: "Code Intelligence", icon: Braces, soon: true },
   { label: "Agents", icon: Bot, soon: true },
@@ -83,7 +85,10 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
         {/* Nav */}
         <nav className="flex-1 space-y-1 overflow-y-auto px-3 py-2">
           {NAV.map((item) => {
-            const active = item.href && pathname === item.href;
+            const active =
+              !!item.href &&
+              (pathname === item.href ||
+                pathname.startsWith(`${item.href}/`));
             const Icon = item.icon;
             const inner = (
               <>

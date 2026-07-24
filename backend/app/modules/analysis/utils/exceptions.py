@@ -32,3 +32,38 @@ class NoParsableFiles(AnalysisError):
 
     status_code = 409
     code = "no_parsable_files"
+
+
+class InvalidFilePath(AnalysisError):
+    """The requested file path is empty, absolute, or malformed."""
+
+    status_code = 400
+    code = "invalid_file_path"
+
+
+class PathTraversalBlocked(AnalysisError):
+    """The requested path resolves outside the project workspace."""
+
+    status_code = 403
+    code = "path_traversal_blocked"
+
+
+class FileNotFoundInProject(AnalysisError):
+    """No such file exists in the project workspace."""
+
+    status_code = 404
+    code = "file_not_found"
+
+
+class FileTooLarge(AnalysisError):
+    """The file is too large to open in the viewer."""
+
+    status_code = 413
+    code = "file_too_large"
+
+
+class FileNotViewable(AnalysisError):
+    """The file is binary or not decodable as text."""
+
+    status_code = 415
+    code = "file_not_viewable"

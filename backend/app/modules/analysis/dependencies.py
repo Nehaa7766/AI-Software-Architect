@@ -11,6 +11,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.session import get_db
 from app.modules.analysis.repositories.symbol_repository import SymbolRepository
+from app.modules.analysis.services.file_viewer_service import FileViewerService
 from app.modules.analysis.services.parsing.registry import ParserRegistry
 from app.modules.analysis.services.symbol_service import SymbolService
 from app.modules.projects.repositories.file_repository import FileRepository
@@ -36,3 +37,7 @@ def get_symbol_service(
         projects=ProjectRepository(db),
         registry=_registry,
     )
+
+
+def get_file_viewer_service(db: DbSession) -> FileViewerService:
+    return FileViewerService(projects=ProjectRepository(db))

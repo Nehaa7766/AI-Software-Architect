@@ -70,6 +70,12 @@ export interface SymbolsByFile {
   total_symbols: number;
 }
 
+export interface FileContent {
+  path: string;
+  language: string;
+  content: string;
+}
+
 export interface SymbolItem {
   id: string;
   file_id: string;
@@ -168,6 +174,11 @@ export const projectsApi = {
       .get<SymbolListResponse>(`/projects/${id}/symbols`, {
         params: { q, limit },
       })
+      .then((r) => r.data),
+
+  getFile: (id: string, path: string) =>
+    api
+      .get<FileContent>(`/projects/${id}/file`, { params: { path } })
       .then((r) => r.data),
 
   remove: (id: string) =>

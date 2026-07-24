@@ -35,9 +35,11 @@ function kindStyle(type: string): { label: string; className: string } {
 export function SymbolSearch({
   projectId,
   analyzed,
+  onOpen,
 }: {
   projectId: string;
   analyzed: boolean;
+  onOpen?: (file: { path: string; line: number; name: string }) => void;
 }) {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<SymbolItem[]>([]);
@@ -114,7 +116,7 @@ export function SymbolSearch({
               )}
               <ul className="divide-y">
                 {results.map((s) => (
-                  <SymbolRow key={s.id} symbol={s} />
+                  <SymbolRow key={s.id} symbol={s} onOpen={onOpen} />
                 ))}
               </ul>
             </>
@@ -125,13 +127,21 @@ export function SymbolSearch({
   );
 }
 
-function SymbolRow({ symbol: s }: { symbol: SymbolItem }) {
+function SymbolRow({
+  symbol: s,
+  onOpen,
+}: {
+  symbol: SymbolItem;
+  onOpen?: (file: { path: string; line: number; name: string }) => void;
+}) {
   const kind = kindStyle(s.symbol_type);
   const location = s.file_path
     ? `${s.file_path}:${s.line_number}`
     : `line ${s.line_number}`;
-  return (
-    <li className="flex items-start gap-2.5 px-3 py-2 transition-colors hover:bg-accent/5">
+  const clickable = !!onOpen && !!s.file_path;
+
+  const body = (
+    <>
       <span
         className={cn(
           "mt-0.5 shrink-0 rounded px-1.5 py-0.5 text-[10px] font-medium",
@@ -151,10 +161,38 @@ function SymbolRow({ symbol: s }: { symbol: SymbolItem }) {
             </span>
           )}
         </p>
-        <p className="truncate font-mono text-[11px] text-muted-foreground" title={location}>
+        <p
+          className="truncate font-mono text-[11px] text-muted-foreground"
+          title={location}
+        >
           {location}
         </p>
       </div>
-    </li>
+    </>
+  );
+
+  if (clickable) {
+    return (
+      <li>
+        <button
+          type="button"
+          onClick={() =>
+            onOpen!({
+              path: s.file_path as string,
+              line: s.line_number,
+              name: s.name,
+            })
+          }
+          className="flex w-full items-start gap-2.5 px-3 py-2 text-left transition-colors hover:bg-accent/10 focus:bg-accent/10 focus:outline-none"
+          title="Open in code viewer"
+        >
+          {body}
+        </button>
+      </li>
+    );
+  }
+
+  return (
+    <li className="flex items-start gap-2.5 px-3 py-2">{body}</li>
   );
 }
