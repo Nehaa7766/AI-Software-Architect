@@ -5,6 +5,11 @@ from app.models.project import (  # noqa: F401
     ProjectFile,
     ProjectStatus,
 )
+from app.models.graph import (  # noqa: F401
+    EdgeType,
+    GraphEdge,
+    NodeKind,
+)
 from app.models.symbol import (  # noqa: F401
     Symbol,
     SymbolType,

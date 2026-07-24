@@ -206,6 +206,20 @@ class SymbolRepository:
         result = await self.db.execute(stmt)
         return {row[0].value: row[1] for row in result.all()}
 
+    async def all_for_project(
+        self, project_id: str, *, symbol_types: list[SymbolType] | None = None
+    ) -> list[Symbol]:
+        """Return every symbol for a project (optionally only certain kinds).
+
+        Used by Phase 6 dependency-graph building, which needs all imports +
+        class definitions at once.
+        """
+        stmt = select(Symbol).where(Symbol.project_id == project_id)
+        if symbol_types:
+            stmt = stmt.where(Symbol.symbol_type.in_(symbol_types))
+        result = await self.db.execute(stmt)
+        return list(result.scalars().all())
+
     async def counts_by_file(
         self, project_id: str
     ) -> list[tuple[str, SymbolType, int]]:

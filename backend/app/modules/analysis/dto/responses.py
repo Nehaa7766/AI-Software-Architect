@@ -98,3 +98,80 @@ class FileContentResponse(BaseModel):
     path: str
     language: str
     content: str
+
+
+# ---- Phase 6: dependency graph ----
+class GraphEdgeResponse(BaseModel):
+    edge_type: str
+    source_kind: str
+    source_id: str | None = None
+    source_name: str
+    target_kind: str
+    target_id: str | None = None
+    target_name: str
+    external: bool
+
+
+class GraphNodeResponse(BaseModel):
+    id: str | None = None
+    name: str
+    kind: str
+    external: bool = False
+
+
+class DependencySummaryResponse(BaseModel):
+    """Result of (re)building the dependency graph."""
+
+    project_id: str
+    status: str = "built"
+    edges_total: int
+    internal: int
+    external: int
+    by_type: dict[str, int]
+
+
+class DependencyGraphResponse(BaseModel):
+    project_id: str
+    nodes: list[GraphNodeResponse]
+    edges: list[GraphEdgeResponse]
+    total: int
+    by_type: dict[str, int]
+
+
+class NeighborsResponse(BaseModel):
+    """Traversal result for a node: who depends on it and what it depends on."""
+
+    node: str
+    dependents: list[GraphEdgeResponse]  # edges pointing at the node
+    dependencies: list[GraphEdgeResponse]  # edges leaving the node
+
+
+# ---- Phase 7: call graph ----
+class CallGraphSummaryResponse(BaseModel):
+    project_id: str
+    status: str = "built"
+    calls_total: int
+    internal: int
+    external: int
+    recursive: int
+    files_analyzed: int
+
+
+class CallNeighborsResponse(BaseModel):
+    """Who calls a symbol (callers) and what it calls (callees)."""
+
+    symbol: str
+    callers: list[GraphEdgeResponse]
+    callees: list[GraphEdgeResponse]
+
+
+class EntryPointResponse(BaseModel):
+    name: str
+    file_path: str | None = None
+    line: int
+
+
+class EntryPointsResponse(BaseModel):
+    project_id: str
+    entry_points: list[EntryPointResponse]
+    total: int

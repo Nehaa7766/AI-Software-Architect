@@ -10,7 +10,10 @@ from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.session import get_db
+from app.modules.analysis.repositories.graph_repository import GraphEdgeRepository
 from app.modules.analysis.repositories.symbol_repository import SymbolRepository
+from app.modules.analysis.services.callgraph_service import CallGraphService
+from app.modules.analysis.services.dependency_service import DependencyService
 from app.modules.analysis.services.file_viewer_service import FileViewerService
 from app.modules.analysis.services.parsing.registry import ParserRegistry
 from app.modules.analysis.services.symbol_service import SymbolService
@@ -41,3 +44,21 @@ def get_symbol_service(
 
 def get_file_viewer_service(db: DbSession) -> FileViewerService:
     return FileViewerService(projects=ProjectRepository(db))
+
+
+def get_dependency_service(db: DbSession) -> DependencyService:
+    return DependencyService(
+        edges=GraphEdgeRepository(db),
+        symbols=SymbolRepository(db),
+        files=FileRepository(db),
+        projects=ProjectRepository(db),
+    )
+
+
+def get_callgraph_service(db: DbSession) -> CallGraphService:
+    return CallGraphService(
+        edges=GraphEdgeRepository(db),
+        symbols=SymbolRepository(db),
+        files=FileRepository(db),
+        projects=ProjectRepository(db),
+    )
